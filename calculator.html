@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ghostuser | Scientific Calculator</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(rgba(10, 30, 15, 0.35), rgba(10, 30, 15, 0.55)),
+      url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 20px;
+  }
+
+  .calculator {
+    width: 380px;
+    max-width: 100%;
+    background: rgba(20, 45, 25, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    padding: 20px;
+    color: #f2fbf0;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .brand {
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #bdf5c0;
+    text-shadow: 0 0 8px rgba(120, 255, 140, 0.5);
+  }
+
+  .stars {
+    color: #ffd54a;
+    font-size: 14px;
+    text-shadow: 0 0 6px rgba(255, 213, 74, 0.7);
+  }
+
+  .mode-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #d8ecd8;
+    margin-bottom: 6px;
+  }
+
+  .mode-toggle {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #f2fbf0;
+    border-radius: 10px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .display {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 14px;
+    padding: 16px 14px;
+    margin-bottom: 14px;
+    text-align: right;
+    min-height: 78px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .history {
+    font-size: 13px;
+    color: #b9d9b9;
+    min-height: 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .current {
+    font-size: 30px;
+    font-weight: 600;
+    word-break: break-all;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .keys {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  button.key {
+    border: none;
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 15px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.14);
+    color: #f2fbf0;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+
+  button.key:hover {
+    background: rgba(255, 255, 255, 0.26);
+  }
+
+  button.key:active {
+    transform: scale(0.94);
+  }
+
+  .op { background: rgba(255, 165, 60, 0.35); }
+  .op:hover { background: rgba(255, 165, 60, 0.5); }
+
+  .fn { background: rgba(90, 200, 140, 0.3); font-size: 13px; }
+  .fn:hover { background: rgba(90, 200, 140, 0.48); }
+
+  .equals {
+    background: linear-gradient(135deg, #52c76b, #2e8b57);
+    grid-column: span 2;
+    font-weight: 700;
+  }
+  .equals:hover { filter: brightness(1.1); }
+
+  .clear { background: rgba(220, 80, 80, 0.4); }
+  .clear:hover { background: rgba(220, 80, 80, 0.55); }
+
+  .wide { grid-column: span 2; }
+
+  .footer {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 11px;
+    color: #c7e6c7;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div class="brand-row">
+    <div class="brand">ghostuser</div>
+    <div class="stars">★★★★★</div>
+  </div>
+
+  <div class="mode-row">
+    <span id="modeLabel">Mode: DEG</span>
+    <button class="mode-toggle" onclick="toggleMode()">Switch to RAD</button>
+  </div>
+
+  <div class="display">
+    <div class="history" id="history">&nbsp;</div>
+    <div class="current" id="current">0</div>
+  </div>
+
+  <div class="keys">
+    <button class="key fn" onclick="press('sin(')">sin</button>
+    <button class="key fn" onclick="press('cos(')">cos</button>
+    <button class="key fn" onclick="press('tan(')">tan</button>
+    <button class="key fn" onclick="press('log(')">log</button>
+    <button class="key fn" onclick="press('ln(')">ln</button>
+
+    <button class="key fn" onclick="press('asin(')">asin</button>
+    <button class="key fn" onclick="press('acos(')">acos</button>
+    <button class="key fn" onclick="press('atan(')">atan</button>
+    <button class="key fn" onclick="press('sqrt(')">√</button>
+    <button class="key fn" onclick="press('^')">x^y</button>
+
+    <button class="key fn" onclick="press('(')">(</button>
+    <button class="key fn" onclick="press(')')">)</button>
+    <button class="key fn" onclick="press('pi')">π</button>
+    <button class="key fn" onclick="press('e')">e</button>
+    <button class="key fn" onclick="factorial()">n!</button>
+
+    <button class="key clear" onclick="clearAll()">AC</button>
+    <button class="key clear" onclick="backspace()">⌫</button>
+    <button class="key fn" onclick="press('%')">%</button>
+    <button class="key fn" onclick="press('1/(')">1/x</button>
+    <button class="key op" onclick="press('/')">÷</button>
+
+    <button class="key" onclick="press('7')">7</button>
+    <button class="key" onclick="press('8')">8</button>
+    <button class="key" onclick="press('9')">9</button>
+    <button class="key op" onclick="press('*')">×</button>
+    <button class="key fn" onclick="press('exp(')">eˣ</button>
+
+    <button class="key" onclick="press('4')">4</button>
+    <button class="key" onclick="press('5')">5</button>
+    <button class="key" onclick="press('6')">6</button>
+    <button class="key op" onclick="press('-')">−</button>
+    <button class="key fn" onclick="pow(2)">x²</button>
+
+    <button class="key" onclick="press('1')">1</button>
+    <button class="key" onclick="press('2')">2</button>
+    <button class="key" onclick="press('3')">3</button>
+    <button class="key op" onclick="press('+')">+</button>
+    <button class="key fn" onclick="pow(3)">x³</button>
+
+    <button class="key wide" onclick="press('0')">0</button>
+    <button class="key" onclick="press('.')">.</button>
+    <button class="key equals" onclick="calculate()">=</button>
+  </div>
+
+  <div class="footer">nature-inspired · ghostuser scientific calculator</div>
+</div>
+
+<script>
+  let expr = "";
+  let isDeg = true;
+
+  const currentEl = document.getElementById('current');
+  const historyEl = document.getElementById('history');
+
+  function updateDisplay() {
+    currentEl.textContent = expr === "" ? "0" : expr;
+  }
+
+  function press(val) {
+    expr += val;
+    updateDisplay();
+  }
+
+  function pow(n) {
+    expr += "^" + n;
+    updateDisplay();
+  }
+
+  function factorial() {
+    expr += "!";
+    updateDisplay();
+  }
+
+  function clearAll() {
+    expr = "";
+    historyEl.textContent = "\u00A0";
+    updateDisplay();
+  }
+
+  function backspace() {
+    expr = expr.slice(0, -1);
+    updateDisplay();
+  }
+
+  function toggleMode() {
+    isDeg = !isDeg;
+    document.getElementById('modeLabel').textContent = "Mode: " + (isDeg ? "DEG" : "RAD");
+    document.querySelector('.mode-toggle').textContent = "Switch to " + (isDeg ? "RAD" : "DEG");
+  }
+
+  function factorialValue(n) {
+    if (n < 0 || Math.floor(n) !== n) throw new Error("Invalid factorial");
+    let result = 1;
+    for (let i = 2; i <= n; i++) result *= i;
+    return result;
+  }
+
+  function preprocess(str) {
+    let s = str;
+
+    s = s.replace(/(\d+(\.\d+)?|\([^()]*\))!/g, function(match, num) {
+      const inner = match.slice(0, -1);
+      return "factorialValue(" + inner + ")";
+    });
+
+    s = s.replace(/\^/g, "**");
+    s = s.replace(/pi/g, "Math.PI");
+    s = s.replace(/(?<![a-zA-Z])e(?![a-zA-Z(])/g, "Math.E");
+
+    const trig = isDeg
+      ? {
+          sin: "Math.sin(Math.PI/180*",
+          cos: "Math.cos(Math.PI/180*",
+          tan: "Math.tan(Math.PI/180*"
+        }
+      : {
+          sin: "Math.sin(",
+          cos: "Math.cos(",
+          tan: "Math.tan("
+        };
+
+    s = s.replace(/asin\(/g, isDeg ? "(180/Math.PI*Math.asin(" : "Math.asin(");
+    s = s.replace(/acos\(/g, isDeg ? "(180/Math.PI*Math.acos(" : "Math.acos(");
+    s = s.replace(/atan\(/g, isDeg ? "(180/Math.PI*Math.atan(" : "Math.atan(");
+
+    s = s.replace(/sin\(/g, trig.sin);
+    s = s.replace(/cos\(/g, trig.cos);
+    s = s.replace(/tan\(/g, trig.tan);
+
+    s = s.replace(/log\(/g, "Math.log10(");
+    s = s.replace(/ln\(/g, "Math.log(");
+    s = s.replace(/sqrt\(/g, "Math.sqrt(");
+    s = s.replace(/exp\(/g, "Math.exp(");
+
+    return s;
+  }
+
+  function calculate() {
+    if (!expr) return;
+    try {
+      const processed = preprocess(expr);
+      const fn = new Function("factorialValue", "return (" + processed + ")");
+      let result = fn(factorialValue);
+
+      if (typeof result !== "number" || !isFinite(result)) {
+        throw new Error("Math error");
+      }
+
+      result = Math.round(result * 1e10) / 1e10;
+
+      historyEl.textContent = expr + " =";
+      expr = String(result);
+      updateDisplay();
+    } catch (err) {
+      historyEl.textContent = "Error";
+      currentEl.textContent = "Invalid expression";
+      expr = "";
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    const key = e.key;
+    if (/[0-9.+\-*/()]/.test(key)) {
+      press(key);
+    } else if (key === "Enter" || key === "=") {
+      e.preventDefault();
+      calculate();
+    } else if (key === "Backspace") {
+      backspace();
+    } else if (key === "Escape") {
+      clearAll();
+    } else if (key === "^") {
+      press("^");
+    }
+  });
+
+  updateDisplay();
+</script>
+
+</body>
+</html>
